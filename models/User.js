@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt"); // 암호화 툴
 const saltRounds = 10; // 암호화를 위한 변수
+const jwt = require("jsonwebtoken"); // For create token
 
 const userSchema = mongoose.Schema({
     name: {
@@ -35,7 +36,7 @@ const userSchema = mongoose.Schema({
 
 userSchema.pre("save", function (next) {
     // Don't use arrow function when you use .pre
-    let user = this;
+    var user = this;
 
     // Encrypt password when change password
     if (user.isModified("password")) {
@@ -53,6 +54,26 @@ userSchema.pre("save", function (next) {
         next();
     }
 });
+
+userSchema.methods.comparePassword = function (plainPassword, cb) {
+    // Compare DB password & user type password
+    bcrypt.compare(plainPassword, this.password, function (err, isMatch) {
+        if (err) return cb(err), cb(null, isMatch);
+    });
+};
+
+userSchema.methods.generateToken = function (cb) {
+    var user = this;
+
+    // Generate token use "jsonwebtoken"
+    var token = jwt.sign(user._id.toHexString(), "secretToken");
+
+    user.token = token;
+    user.save((err, user) => {
+        if (err) return cb(err);
+        cb(null, user);
+    });
+};
 
 const User = mongoose.model("User", userSchema);
 
