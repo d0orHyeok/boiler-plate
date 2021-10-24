@@ -6,7 +6,7 @@ const { auth } = require("./middleware/auth");
 const config = require("./config/key");
 
 const app = express();
-const port = 3000;
+const port = 5000;
 
 // application/x-www-form-urlencoded
 app.use(express.urlencoded({ extended: true }));
@@ -23,6 +23,10 @@ mongoose
 
 app.get("/", (req, res) => {
     res.send("Hello World!!!");
+});
+
+app.get("/api/hello", (req, res) => {
+    res.send("안녕하세요 ~ ");
 });
 
 // Register Route
