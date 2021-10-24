@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
 const { User } = require("./models/User");
+const { auth } = require("./middleware/auth");
 const config = require("./config/key");
 
 const app = express();
@@ -24,8 +25,8 @@ app.get("/", (req, res) => {
     res.send("Hello World!!!");
 });
 
-// Register
-app.post("/register", (req, res) => {
+// Register Route
+app.post("/api/users/register", (req, res) => {
     // 회원 가입에 필요한 정보를 client에서 가져오면 DB에 넣어준다.
     const user = new User(req.body);
     user.save((err, userInfo) => {
@@ -36,8 +37,8 @@ app.post("/register", (req, res) => {
     });
 });
 
-// Login
-app.post("/login", (req, res) => {
+// Login Route
+app.post("/api/users/login", (req, res) => {
     // Find requset email on DB
     User.findOne({ email: req.body.email }, (err, user) => {
         // Can't find user
@@ -62,6 +63,21 @@ app.post("/login", (req, res) => {
                 .status(200)
                 .json({ loginSuccess: true, userId: user._id });
         });
+    });
+});
+
+// Auth Route | 인증
+app.get("/api/users/auth", auth, (req, res) => {
+    // Pass middleware, Authentication True
+    res.status.json({
+        _id: req.user._id,
+        isAdmin: req.user.role === 0 ? false : true,
+        isAuth: true,
+        email: req.user.email,
+        name: req.user.name,
+        lastname: req.user.lastname,
+        role: req.user.role,
+        image: req.user.image,
     });
 });
 
