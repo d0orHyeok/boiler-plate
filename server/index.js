@@ -73,7 +73,7 @@ app.post("/api/users/login", (req, res) => {
 // Auth Route | 인증
 app.get("/api/users/auth", auth, (req, res) => {
     // Pass middleware, Authentication True
-    res.status.json({
+    res.status(200).json({
         _id: req.user._id,
         isAdmin: req.user.role === 0 ? false : true,
         isAuth: true,
